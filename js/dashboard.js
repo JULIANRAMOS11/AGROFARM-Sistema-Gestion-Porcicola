@@ -1,4 +1,4 @@
-import { checkAuth } from './auth.js';
+import { checkAuth } from '../js/auth.js';
 import { renderPigs } from './pigs.js';
 import { renderCharts } from './charts.js';
 

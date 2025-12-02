@@ -4,33 +4,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AGROFARM - Registro</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-6 text-center text-green-800">Registro</h1>
-        <form id="registerForm" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700" for="newUser">Usuario</label>
-                <input id="newUser" type="text" class="mt-1 block w-full border-gray-300 rounded-md" required />
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700" for="newPass">Contraseña</label>
-                <input id="newPass" type="password" class="mt-1 block w-full border-gray-300 rounded-md" required />
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700" for="role">Rol</label>
-                <select id="role" class="mt-1 block w-full border-gray-300 rounded-md">
-                    <option value="Administrador">Administrador</option>
-                    <option value="Veterinario">Veterinario</option>
-                    <option value="Operario">Operario</option>
-                </select>
-            </div>
-            <button type="submit" class="w-full bg-green-700 text-white py-2 rounded hover:bg-green-800">Crear cuenta</button>
-        </form>
-        <p class="mt-4 text-center text-sm"> <a href="index.html" class="text-green-700 hover:underline">Volver al login</a></p>
+<body class="h-screen flex overflow-hidden bg-white">
+
+    <div class="hidden md:flex md:w-1/2 lg:w-3/5 bg-green-800 relative items-center justify-center overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1605000797499-95a053545e21?q=80&w=1920&auto=format&fit=crop" 
+             class="absolute inset-0 w-full h-full object-cover opacity-50" 
+             alt="Cerditos Granja">
+        
+        <div class="relative z-10 text-center px-10 fade-in">
+            <h2 class="text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-tight drop-shadow-lg">
+                Únete a la Revolución <br> del Agro.
+            </h2>
+            <p class="text-green-50 text-lg max-w-md mx-auto leading-relaxed drop-shadow-md">
+                Crea tu cuenta hoy y optimiza cada etapa productiva de tu granja con tecnología de punta.
+            </p>
+        </div>
+        
+        <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-green-500 rounded-full mix-blend-overlay filter blur-3xl opacity-40"></div>
     </div>
-    <script type="module" src="scripts/auth.js"></script>
+
+    <div class="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center items-center p-8 lg:p-12 relative overflow-y-auto">
+        
+        <div class="w-full max-w-md fade-in mt-10 md:mt-0">
+            
+            <div class="text-center mb-8">
+                <img src="img/logo.jpeg" alt="Logo Agrofarm" class="mx-auto h-16 w-auto mb-3 rounded-lg shadow-sm">
+                <h1 class="text-3xl font-bold text-gray-900">Crear Cuenta</h1>
+                <p class="text-gray-500 mt-1">Completa tus datos para empezar</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button id="googleBtn" class="flex items-center justify-center py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition duration-200 group">
+                    <i class="fab fa-google text-red-500 text-lg group-hover:scale-110 transition-transform"></i>
+                    <span class="ml-3 text-sm font-semibold text-gray-700">Google</span>
+                </button>
+                <button id="facebookBtn" class="flex items-center justify-center py-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition duration-200 group">
+                    <i class="fab fa-facebook text-blue-600 text-lg group-hover:scale-110 transition-transform"></i>
+                    <span class="ml-3 text-sm font-semibold text-gray-700">Facebook</span>
+                </button>
+            </div>
+
+            <div class="relative mb-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+                <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">O regístrate manualmente</span></div>
+            </div>
+
+            <form id="registerForm" class="space-y-5">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400 group-focus-within:text-green-600 transition"></i>
+                        </div>
+                        <input id="newUser" type="text" required 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition outline-none sm:text-sm" 
+                               placeholder="Elige tu usuario">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400 group-focus-within:text-green-600 transition"></i>
+                        </div>
+                        <input id="newPass" type="password" required 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition outline-none sm:text-sm" 
+                               placeholder="Crea una contraseña segura">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rol en la Granja</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-briefcase text-gray-400 group-focus-within:text-green-600 transition"></i>
+                        </div>
+                        <select id="role" required
+                                class="block w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition outline-none sm:text-sm appearance-none cursor-pointer">
+                            <option value="" disabled selected>Selecciona tu cargo...</option>
+                            <option value="Administrador">Administrador</option>
+                            <option value="Veterinario">Veterinario</option>
+                            <option value="Operario">Operario</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full py-3.5 px-4 bg-green-700 hover:bg-green-800 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-0.5 mt-2">
+                    CREAR MI CUENTA
+                </button>
+            </form>
+
+            <p class="mt-8 text-center text-sm text-gray-600">
+                ¿Ya eres parte de Agrofarm?
+                <a href="index.html" class="font-bold text-green-600 hover:text-green-500 transition">
+                    Inicia sesión aquí
+                </a>
+            </p>
+        </div>
+        
+        <div class="mt-8 text-xs text-gray-400 text-center">
+            &copy; 2025 AGROFARM v1.0 - Plataforma Segura
+        </div>
+    </div>
+
+    <script type="module" src="js/auth.js"></script>
+
 </body>
 </html>

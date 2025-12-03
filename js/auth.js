@@ -1,18 +1,16 @@
 /**
- * Módulo de Autenticación - AGROFARM
- * @module Auth
- * @description Gestiona registro, login, seguridad y acceso social.
- * @author Julián Ramos
+ * Modulo de Autenticacion - AGROFARM
+ * Gestiona registro, login, seguridad y acceso social usando localStorage/sessionStorage.
  */
 
-// ==========================================
-// 1. CONFIGURACIÓN Y UTILIDADES
-// ==========================================
+// ================================
+// 1. CONFIGURACION Y UTILIDADES
+// ================================
 
 // Base de datos simulada en LocalStorage
 const users = JSON.parse(localStorage.getItem('users') || '[]');
 
-// Configuración de Alerta tipo "Toast" (Notificación elegante en la esquina)
+// Configuracion de Toast (SweetAlert2)
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -25,16 +23,12 @@ const Toast = Swal.mixin({
     }
 });
 
-/**
- * Guarda los cambios de usuarios en el navegador
- */
 function saveUsers() {
     localStorage.setItem('users', JSON.stringify(users));
 }
 
 /**
- * Función de Seguridad (Exportada)
- * Verifica si hay sesión al entrar al Dashboard
+ * Verifica sesion activa; si no existe, redirige al login.
  */
 export function checkAuth() {
     const user = JSON.parse(sessionStorage.getItem('user') || 'null');
@@ -44,9 +38,9 @@ export function checkAuth() {
     return user;
 }
 
-// ==========================================
-// 2. LÓGICA DE LOGIN (Correo y Contraseña)
-// ==========================================
+// ================================
+// 2. LOGIN (usuario y contrasena)
+// ================================
 
 const loginForm = document.getElementById('loginForm');
 
@@ -56,12 +50,9 @@ if (loginForm) {
 
         const btn = loginForm.querySelector('button[type="submit"]');
         const originalText = btn.innerHTML;
-
-        // Efecto de carga en el botón
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
 
-        // Simular pequeño retraso de red
         setTimeout(() => {
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
@@ -69,32 +60,21 @@ if (loginForm) {
             const user = users.find(us => us.username === u && us.password === p);
 
             if (user) {
-                // Guardar sesión
                 sessionStorage.setItem('user', JSON.stringify(user));
-                
-                Toast.fire({
-                    icon: 'success',
-                    title: `Bienvenido de nuevo, ${user.username}`
-                });
-
+                Toast.fire({ icon: 'success', title: `Bienvenido de nuevo, ${user.username}` });
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
             } else {
-                // Restaurar botón y mostrar error
                 btn.disabled = false;
                 btn.innerHTML = originalText;
-                
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Usuario o contraseña incorrectos'
-                });
+                Toast.fire({ icon: 'error', title: 'Usuario o contrasena incorrectos' });
             }
-        }, 1000);
+        }, 800);
     });
 }
 
-// ==========================================
-// 3. LÓGICA DE REGISTRO (Nueva Cuenta)
-// ==========================================
+// ================================
+// 3. REGISTRO (nuevos campos)
+// ================================
 
 const registerForm = document.getElementById('registerForm');
 
@@ -105,28 +85,34 @@ if (registerForm) {
         const username = document.getElementById('newUser').value.trim();
         const password = document.getElementById('newPass').value.trim();
         const role = document.getElementById('role').value;
+        const fullName = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const farm = document.getElementById('farm').value.trim();
+        const location = document.getElementById('location').value.trim();
 
-        // Validaciones básicas
         if (users.some(u => u.username === username)) {
-            Toast.fire({ icon: 'warning', title: 'El nombre de usuario ya está en uso' });
+            Toast.fire({ icon: 'warning', title: 'El usuario ya esta en uso' });
             return;
         }
 
         if (password.length < 4) {
-            Toast.fire({ icon: 'warning', title: 'La contraseña es muy corta (min 4 caracteres)' });
+            Toast.fire({ icon: 'warning', title: 'La contrasena es muy corta (min 4 caracteres)' });
             return;
         }
 
-        // Crear y guardar
-        users.push({ username, password, role });
+        if (!fullName || !phone || !farm || !location) {
+            Toast.fire({ icon: 'warning', title: 'Completa todos los datos personales' });
+            return;
+        }
+
+        users.push({ username, password, role, fullName, phone, farm, location });
         saveUsers();
 
-        // Alerta de éxito grande
         Swal.fire({
-            title: '¡Cuenta Creada!',
-            text: 'Ya puedes iniciar sesión con tus credenciales.',
+            title: 'Cuenta creada',
+            text: 'Ya puedes iniciar sesion con tus credenciales.',
             icon: 'success',
-            confirmButtonText: 'Ir al Login',
+            confirmButtonText: 'Ir al login',
             confirmButtonColor: '#15803d'
         }).then(() => {
             window.location.href = 'index.html';
@@ -134,45 +120,37 @@ if (registerForm) {
     });
 }
 
-// ==========================================
-// 4. LÓGICA DE LOGIN SOCIAL (Google/Facebook)
-// ==========================================
+// ================================
+// 4. LOGIN SOCIAL (simulado)
+// ================================
 
 const googleBtn = document.getElementById('googleBtn');
 const facebookBtn = document.getElementById('facebookBtn');
 
 function simulateSocialLogin(provider) {
-    let iconHtml = provider === 'Google' ? '<i class="fab fa-google"></i>' : '<i class="fab fa-facebook"></i>';
-    
     Swal.fire({
         title: `Conectando con ${provider}`,
         html: 'Autenticando credenciales seguras...',
         timer: 2000,
         timerProgressBar: true,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+        didOpen: () => Swal.showLoading()
     }).then((result) => {
         if (result.dismiss === Swal.DismissReason.timer) {
-            // Crear usuario temporal
             const socialUser = {
                 username: `Usuario ${provider}`,
-                role: 'Veterinario', // Rol por defecto
-                provider: provider
+                role: 'Veterinario',
+                provider,
+                fullName: `Usuario ${provider}`,
+                phone: 'N/D',
+                farm: 'Granja Demo',
+                location: 'N/D'
             };
-            
             sessionStorage.setItem('user', JSON.stringify(socialUser));
-            
-            Toast.fire({
-                icon: 'success',
-                title: '¡Autenticación Exitosa!'
-            });
-
-            setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            Toast.fire({ icon: 'success', title: 'Autenticacion exitosa' });
+            setTimeout(() => window.location.href = 'dashboard.html', 800);
         }
     });
 }
 
-// Listeners de Redes Sociales
 if (googleBtn) googleBtn.addEventListener('click', () => simulateSocialLogin('Google'));
 if (facebookBtn) facebookBtn.addEventListener('click', () => simulateSocialLogin('Facebook'));

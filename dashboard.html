@@ -16,368 +16,400 @@
 
   <style>
     body { font-family: 'Inter', sans-serif; }
-    .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-    .sidebar-link.active { background-color: rgba(255, 255, 255, 0.1); border-left: 4px solid #4ade80; }
+    .glass-effect { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: translateY(0);} }
+    .blob { position:absolute; border-radius:9999px; filter: blur(50px); opacity:0.35; animation: blob 16s ease-in-out infinite; }
+    .blob:nth-child(2){ animation-delay:3s; }
+    .blob:nth-child(3){ animation-delay:6s; }
+    @keyframes blob { 0%,100% { transform: translate(0,0) scale(1);} 33% { transform: translate(20px,-30px) scale(1.05);} 66% { transform: translate(-10px,25px) scale(0.95);} }
   </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800 h-screen flex overflow-hidden">
+<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 text-gray-800 min-h-screen">
+  <!-- Overlay móvil -->
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 z-20"></div>
 
-  <aside id="sidebar" class="bg-green-900 text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 shadow-2xl z-20">
-    <div class="h-20 flex items-center justify-center border-b border-green-800 bg-green-950">
-      <div class="flex items-center gap-3">
-         <i class="fa-solid fa-piggy-bank text-3xl text-green-400"></i>
-         <div>
-           <h1 class="text-xl font-bold tracking-wider">AGROFARM</h1>
-           <p class="text-xs text-green-300 uppercase tracking-widest">Gestion v1.0</p>
-         </div>
+  <div class="flex min-h-screen">
+    <!-- Sidebar Off-Canvas -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-gradient-to-b from-green-900 via-green-950 to-black text-white transform -translate-x-full md:translate-x-0 transition-transform duration-300 shadow-2xl z-30">
+      <div class="h-32 flex items-center justify-center border-b border-white/10 bg-white/5 backdrop-blur-md px-4">
+        <div class="flex items-center gap-4">
+          <img src="img/logo2.png" alt="Logo Agrofarm" class="h-28 w-auto object-contain drop-shadow-2xl">
+          <div>
+            <h1 class="text-2xl font-extrabold tracking-wider">AGROFARM</h1>
+            <p class="text-xs text-green-200 uppercase tracking-widest">Gestion v1.0</p>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-      <p class="px-3 text-xs font-semibold text-green-400 uppercase tracking-wider mb-2">Principal</p>
-      
-      <button data-section="dashboard" class="sidebar-link active w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-green-800 transition-colors">
-        <i class="fas fa-chart-pie w-6 text-green-300"></i> Dashboard
-      </button>
-
-      <p class="px-3 text-xs font-semibold text-green-400 uppercase tracking-wider mt-6 mb-2">Gestion</p>
-
-      <button data-section="pigs" class="sidebar-link w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-green-800 transition-colors">
-        <i class="fas fa-paw w-6 text-green-300"></i> Cerdos
-      </button>
-      <button data-section="reproduction" class="sidebar-link w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-green-800 transition-colors">
-        <i class="fas fa-venus-mars w-6 text-green-300"></i> Reproduccion
-      </button>
-      <button data-section="health" class="sidebar-link w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-green-800 transition-colors">
-        <i class="fas fa-user-md w-6 text-green-300"></i> Sanidad
-      </button>
-      <button data-section="production" class="sidebar-link w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-green-800 transition-colors">
-        <i class="fas fa-industry w-6 text-green-300"></i> Produccion
-      </button>
-      <button data-section="nutrition" class="sidebar-link w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-green-800 transition-colors">
-        <i class="fas fa-utensils w-6 text-green-300"></i> Nutricion
-      </button>
-      <button data-section="profile" class="sidebar-link w-full text-left flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-green-800 transition-colors">
-        <i class="fas fa-user-circle w-6 text-green-300"></i> Perfil
-      </button>
-    </nav>
-
-    <div class="p-4 border-t border-green-800 bg-green-950">
-      <button id="logout" class="flex items-center w-full px-4 py-2 text-sm font-medium text-red-300 bg-green-900 rounded-lg hover:bg-red-600 hover:text-white transition-colors">
-        <i class="fas fa-sign-out-alt w-6"></i> Cerrar Sesion
-      </button>
-    </div>
-  </aside>
-
-  <div class="flex-1 flex flex-col h-screen overflow-hidden bg-gray-100">
-    
-    <header class="h-20 glass-effect shadow-sm flex justify-between items-center px-8 z-10">
-      <div class="flex items-center gap-4">
-        <button id="menuToggle" class="md:hidden text-green-800 hover:text-green-600">
-          <i class="fas fa-bars text-2xl"></i>
+      <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+        <p class="px-2 text-xs font-semibold text-green-200/80 uppercase tracking-wider mb-2">Principal</p>
+        <button data-section="dashboard" class="sidebar-link group w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl hover:bg-white/10 transition-colors">
+          <i class="fas fa-chart-pie w-5 text-green-300 group-hover:animate-bounce"></i> Dashboard
         </button>
-        <div>
-          <h2 id="sectionTitle" class="text-2xl font-bold text-gray-800">Resumen General</h2>
-          <p class="text-xs text-gray-500">Bienvenido al sistema de gestion</p>
-        </div>
+
+        <p class="px-2 text-xs font-semibold text-green-200/80 uppercase tracking-wider mt-6 mb-2">Gestion</p>
+        <button data-section="pigs" class="sidebar-link group w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl hover:bg-white/10 transition-colors">
+          <i class="fas fa-paw w-5 text-green-300 group-hover:animate-bounce"></i> Cerdos
+        </button>
+        <button data-section="reproduction" class="sidebar-link group w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl hover:bg-white/10 transition-colors">
+          <i class="fas fa-venus-mars w-5 text-green-300 group-hover:animate-bounce"></i> Reproduccion
+        </button>
+        <button data-section="health" class="sidebar-link group w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl hover:bg-white/10 transition-colors">
+          <i class="fas fa-user-md w-5 text-green-300 group-hover:animate-bounce"></i> Sanidad
+        </button>
+        <button data-section="production" class="sidebar-link group w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl hover:bg-white/10 transition-colors">
+          <i class="fas fa-industry w-5 text-green-300 group-hover:animate-bounce"></i> Produccion
+        </button>
+        <button data-section="nutrition" class="sidebar-link group w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl hover:bg-white/10 transition-colors">
+          <i class="fas fa-utensils w-5 text-green-300 group-hover:animate-bounce"></i> Nutricion
+        </button>
+        <button data-section="profile" class="sidebar-link group w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl hover:bg-white/10 transition-colors">
+          <i class="fas fa-user-circle w-5 text-green-300 group-hover:animate-bounce"></i> Perfil
+        </button>
+      </nav>
+
+      <div class="p-4 border-t border-white/10 bg-white/5 backdrop-blur-md">
+        <button id="logout" class="flex items-center w-full px-4 py-2 text-sm font-semibold text-red-200 bg-white/10 rounded-xl hover:bg-red-600 hover:text-white transition-colors">
+          <i class="fas fa-sign-out-alt w-5"></i> Cerrar Sesion
+        </button>
       </div>
+    </aside>
 
-      <div class="flex items-center gap-6">
-        <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
-          <img src="https://ui-avatars.com/api/?name=Admin&background=166534&color=fff" alt="User" class="w-8 h-8 rounded-full">
-          <div class="text-right hidden sm:block">
-            <p class="text-sm font-bold text-gray-700">Usuario</p>
-            <p class="text-xs text-green-600">Rol</p>
+    <!-- Contenido principal -->
+    <div class="flex-1 flex flex-col min-h-screen">
+      <header class="sticky top-0 z-10 h-20 glass-effect bg-white/80 backdrop-blur-md border-b border-white/40 shadow-xl shadow-green-900/10 flex justify-between items-center px-6 md:px-10">
+        <div class="flex items-center gap-4">
+          <button id="menuToggle" class="md:hidden text-green-800 hover:text-green-600">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+          <div>
+            <h2 id="sectionTitle" class="text-2xl font-extrabold text-gray-900 tracking-tight">Resumen General</h2>
+            <p class="text-xs text-gray-500">Bienvenido al sistema de gestion</p>
           </div>
         </div>
-      </div>
-    </header>
-
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-8">
-      
-      <section id="dashboardSection" class="animate-fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          
-          <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-green-500 hover:shadow-md transition">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase">Total Cerdos</p>
-                <h3 id="pigCount" class="text-3xl font-bold text-gray-800 mt-2">0</h3>
-              </div>
-              <div class="p-3 bg-green-50 rounded-lg text-green-600">
-                <i class="fas fa-piggy-bank text-xl"></i>
-              </div>
-            </div>
-            <p class="text-xs text-green-600 mt-4 flex items-center">
-              <i class="fas fa-arrow-up mr-1"></i> 12% mas este mes
-            </p>
+        <div class="flex items-center gap-4">
+          <div class="hidden sm:block text-right">
+            <p class="text-sm font-bold text-gray-800" id="headerUserName">Usuario</p>
+            <p class="text-xs text-green-600" id="headerUserRole">Rol</p>
           </div>
-
-          <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-blue-500 hover:shadow-md transition">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase">Nacimientos</p>
-                <h3 id="birthCount" class="text-3xl font-bold text-gray-800 mt-2">0</h3>
-              </div>
-              <div class="p-3 bg-blue-50 rounded-lg text-blue-600">
-                <i class="fas fa-baby text-xl"></i>
-              </div>
-            </div>
-            <p class="text-xs text-blue-600 mt-4 flex items-center">
-              <i class="fas fa-plus mr-1"></i> 5 esta semana
-            </p>
-          </div>
-
-          <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-red-500 hover:shadow-md transition">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase">Alertas Activas</p>
-                <h3 id="alertsCount" class="text-3xl font-bold text-gray-800 mt-2">0</h3>
-              </div>
-              <div class="p-3 bg-red-50 rounded-lg text-red-600">
-                <i class="fas fa-bell text-xl"></i>
-              </div>
-            </div>
-            <p class="text-xs text-red-600 mt-4 flex items-center">
-              <i class="fas fa-exclamation-circle mr-1"></i> Requieren atencion
-            </p>
-          </div>
-
-          <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-yellow-500 hover:shadow-md transition">
-            <div class="flex justify-between items-start">
-              <div>
-                <p class="text-xs font-semibold text-gray-400 uppercase">Inventario (Kg)</p>
-                <h3 id="feedCount" class="text-3xl font-bold text-gray-800 mt-2">0</h3>
-              </div>
-              <div class="p-3 bg-yellow-50 rounded-lg text-yellow-600">
-                <i class="fas fa-box-open text-xl"></i>
-              </div>
-            </div>
-            <p class="text-xs text-yellow-600 mt-4 flex items-center">
-              <i class="fas fa-minus mr-1"></i> Consumo estable
-            </p>
-          </div>
+          <img src="https://source.unsplash.com/64x64/?portrait,face" alt="User" class="w-12 h-12 rounded-2xl shadow-lg border border-white/60">
         </div>
+      </header>
 
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-          <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-            <h3 class="font-bold text-gray-700">Actividad Reciente</h3>
-            <button class="text-sm text-green-600 hover:text-green-800 font-medium">Ver todo</button>
-          </div>
-          <div class="p-6 text-center text-gray-400 py-12">
-            <i class="fas fa-clipboard-list text-4xl mb-3 text-gray-200"></i>
-            <p>No hay actividades recientes registradas en el sistema.</p>
-          </div>
-        </div>
-      </section>
+      <main class="flex-1 px-4 sm:px-6 lg:px-10 py-6 space-y-8">
+        <!-- Dashboard -->
+        <section id="dashboardSection" class="animate-fade-in relative overflow-hidden">
+          <div class="absolute inset-0 bg-[url('img/cerdos.webp')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+          <span class="blob w-64 h-64 bg-green-300/40 -top-10 -left-6"></span>
+          <span class="blob w-72 h-72 bg-emerald-500/30 top-24 -right-10"></span>
+          <div class="relative grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div class="bg-white/90 backdrop-blur-md border border-white/60 rounded-2xl shadow-xl shadow-green-900/10 p-6 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-xs font-semibold text-gray-500 uppercase">Total Cerdos</p>
+                  <h3 id="pigCount" class="text-3xl font-extrabold text-gray-900 mt-2">0</h3>
+                </div>
+                <div class="p-3 rounded-2xl bg-gradient-to-br from-green-100 to-green-200 text-green-700 shadow-inner">
+                  <i class="fas fa-piggy-bank text-xl"></i>
+                </div>
+              </div>
+              <p class="text-xs text-green-600 mt-4 flex items-center gap-1">
+                <i class="fas fa-arrow-up"></i> 12% mas este mes
+              </p>
+            </div>
 
-      <section id="pigsSection" class="hidden animate-fade-in">
-        <div class="flex flex-col md:flex-row gap-6">
-          <div class="w-full md:w-1/3 bg-white p-6 rounded-xl shadow-sm h-fit sticky top-6">
-            <h3 class="text-lg font-bold text-green-800 mb-4 flex items-center">
-              <i class="fas fa-plus-circle mr-2"></i> Nuevo Registro
-            </h3>
-            <form id="pigForm" class="space-y-4">
-              <div>
-                <label class="text-sm font-medium text-gray-600">Identificador / Nombre</label>
-                <input id="pigName" type="text" placeholder="Ej: Lote A-01" class="w-full mt-1 border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
+            <div class="bg-white/90 backdrop-blur-md border border-white/60 rounded-2xl shadow-xl shadow-green-900/10 p-6 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-xs font-semibold text-gray-500 uppercase">Nacimientos</p>
+                  <h3 id="birthCount" class="text-3xl font-extrabold text-gray-900 mt-2">0</h3>
+                </div>
+                <div class="p-3 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-700 shadow-inner">
+                  <i class="fas fa-baby text-xl"></i>
+                </div>
               </div>
-              <div>
-                <label class="text-sm font-medium text-gray-600">Etapa Productiva</label>
-                <select id="pigStage" class="w-full mt-1 border border-gray-300 rounded-lg p-2.5 bg-white focus:ring-2 focus:ring-green-500">
-                  <option value="Lechon">Lechon</option>
-                  <option value="Gestante">Gestante</option>
-                  <option value="Ceba">Ceba</option>
-                  <option value="Lactancia">Lactancia</option>
-                </select>
+              <p class="text-xs text-blue-600 mt-4 flex items-center gap-1">
+                <i class="fas fa-plus"></i> 5 esta semana
+              </p>
+            </div>
+
+            <div class="bg-white/90 backdrop-blur-md border border-white/60 rounded-2xl shadow-xl shadow-green-900/10 p-6 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-xs font-semibold text-gray-500 uppercase">Alertas Activas</p>
+                  <h3 id="alertsCount" class="text-3xl font-extrabold text-gray-900 mt-2">0</h3>
+                </div>
+                <div class="p-3 rounded-2xl bg-gradient-to-br from-red-100 to-red-200 text-red-700 shadow-inner">
+                  <i class="fas fa-bell text-xl"></i>
+                </div>
               </div>
-              <button type="submit" class="w-full bg-green-700 text-white font-bold py-3 rounded-lg hover:bg-green-800 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                <i class="fas fa-save mr-2"></i> Guardar Registro
-              </button>
+              <p class="text-xs text-red-600 mt-4 flex items-center gap-1">
+                <i class="fas fa-exclamation-circle"></i> Requieren atencion
+              </p>
+            </div>
+
+            <div class="bg-white/90 backdrop-blur-md border border-white/60 rounded-2xl shadow-xl shadow-green-900/10 p-6 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-xs font-semibold text-gray-500 uppercase">Inventario (Kg)</p>
+                  <h3 id="feedCount" class="text-3xl font-extrabold text-gray-900 mt-2">0</h3>
+                </div>
+                <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 shadow-inner">
+                  <i class="fas fa-box-open text-xl"></i>
+                </div>
+              </div>
+              <p class="text-xs text-amber-600 mt-4 flex items-center gap-1">
+                <i class="fas fa-minus"></i> Consumo estable
+              </p>
+            </div>
+          </div>
+
+          <div class="relative bg-white/90 backdrop-blur-md border border-white/60 rounded-2xl shadow-xl shadow-green-900/10 overflow-hidden mt-8">
+            <span class="blob w-56 h-56 bg-green-200/40 -top-12 -left-8"></span>
+            <div class="px-6 py-4 border-b border-white/60 flex justify-between items-center bg-gradient-to-r from-white/80 to-green-50">
+              <h3 class="font-bold text-gray-800">Actividad Reciente</h3>
+              <button class="text-sm font-semibold text-green-700 hover:text-green-900 transition-colors">Ver todo</button>
+            </div>
+            <div class="p-6 text-center text-gray-400 py-12 bg-[url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=60')] bg-cover bg-center bg-no-repeat bg-opacity-10">
+              <div class="backdrop-blur-sm bg-white/70 rounded-2xl p-6 inline-block shadow-lg">
+                <i class="fas fa-clipboard-list text-4xl mb-3 text-gray-300"></i>
+                <p class="text-gray-600">No hay actividades recientes registradas en el sistema.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cerdos -->
+        <section id="pigsSection" class="hidden animate-fade-in relative overflow-hidden">
+          <div class="absolute inset-0 bg-[url('img/cerdos.webp')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+          <span class="blob w-60 h-60 bg-green-200/50 -top-10 right-10"></span>
+          <div class="flex flex-col lg:flex-row gap-6">
+            <div class="w-full lg:w-1/3 bg-white/90 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-xl shadow-green-900/10 h-fit sticky top-24">
+              <h3 class="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
+                <i class="fas fa-plus-circle text-green-600"></i> Nuevo Registro
+              </h3>
+              <form id="pigForm" class="space-y-4">
+                <div>
+                  <label class="text-sm font-medium text-gray-600">Identificador / Nombre</label>
+                  <input id="pigName" type="text" placeholder="Ej: Lote A-01" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2.5 focus:ring-4 focus:ring-green-500/30 focus:border-green-500 transition">
+                </div>
+                <div>
+                  <label class="text-sm font-medium text-gray-600">Etapa Productiva</label>
+                  <select id="pigStage" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2.5 bg-white focus:ring-4 focus:ring-green-500/30 focus:border-green-500">
+                    <option value="Lechon">Lechon</option>
+                    <option value="Gestante">Gestante</option>
+                    <option value="Ceba">Ceba</option>
+                    <option value="Lactancia">Lactancia</option>
+                  </select>
+                </div>
+                <button type="submit" class="w-full text-white font-bold py-3 rounded-xl shadow-lg bg-gradient-to-r from-green-600 to-green-800 hover:brightness-110 transition-all duration-200">
+                  <i class="fas fa-save mr-2"></i> Guardar Registro
+                </button>
+              </form>
+            </div>
+
+            <div class="w-full lg:w-2/3 bg-white/90 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-xl shadow-green-900/10">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                <h3 class="font-bold text-gray-800">Inventario Actual</h3>
+                <div class="relative">
+                  <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
+                  <input id="searchPig" type="text" placeholder="Buscar..." class="pl-9 border border-gray-200 rounded-full px-4 py-2 text-sm focus:ring-4 focus:ring-green-500/30 focus:border-green-500 w-48">
+                </div>
+              </div>
+              <div class="overflow-x-auto rounded-xl border border-white/60 shadow-inner">
+                <table id="pigTable" class="w-full text-left">
+                  <thead class="bg-gray-50/80 text-gray-600 text-xs uppercase tracking-wider">
+                    <tr>
+                      <th class="p-4 font-semibold">Identificador</th>
+                      <th class="p-4 font-semibold">Etapa</th>
+                      <th class="p-4 font-semibold text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100 text-sm"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Produccion -->
+        <section id="productionSection" class="hidden animate-fade-in relative overflow-hidden">
+          <div class="absolute inset-0 bg-[url('img/cerdos.webp')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+          <span class="blob w-64 h-64 bg-emerald-200/40 -top-6 -left-8"></span>
+          <div class="relative bg-white/90 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-xl shadow-green-900/10">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">Metricas de Produccion</h3>
+                <p class="text-sm text-gray-500">Nacimientos por mes</p>
+              </div>
+              <div class="flex gap-2">
+                <button id="exportPdf" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition shadow">
+                  <i class="fas fa-file-pdf mr-1"></i> PDF
+                </button>
+                <button id="exportXls" class="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold hover:brightness-110 transition shadow">
+                  <i class="fas fa-file-excel mr-1"></i> Excel
+                </button>
+              </div>
+            </div>
+            <div class="h-96 w-full bg-white/60 rounded-xl p-4 flex items-center justify-center border border-white/50 shadow-inner">
+              <canvas id="productionChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- Reproduccion -->
+        <section id="reproductionSection" class="hidden animate-fade-in relative overflow-hidden">
+          <div class="absolute inset-0 bg-[url('img/cerdos.webp')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+          <span class="blob w-60 h-60 bg-green-300/35 -top-8 right-8"></span>
+          <div class="relative bg-white/90 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-xl shadow-green-900/10">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">Registro de Montas</h3>
+                <p class="text-sm text-gray-500">Control rapido de macho, hembra y fecha.</p>
+              </div>
+            </div>
+            <form id="reproductionForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <input id="repMale" type="text" placeholder="Macho" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+              <input id="repFemale" type="text" placeholder="Hembra" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+              <div class="flex gap-3">
+                <input id="repDate" type="date" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+                <button type="submit" class="bg-gradient-to-r from-green-600 to-green-800 text-white px-4 py-2 rounded-lg font-semibold hover:brightness-110 shadow">
+                  Guardar
+                </button>
+              </div>
             </form>
-          </div>
-
-          <div class="w-full md:w-2/3 bg-white p-6 rounded-xl shadow-sm">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-bold text-gray-700">Inventario Actual</h3>
-              <div class="relative">
-                <i class="fas fa-search absolute left-3 top-3 text-gray-400 text-sm"></i>
-                <input id="searchPig" type="text" placeholder="Buscar..." class="pl-9 border border-gray-200 rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-green-500 w-48">
-              </div>
-            </div>
-            <div class="overflow-x-auto rounded-lg border border-gray-100">
-              <table id="pigTable" class="w-full text-left">
-                <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
+            <div class="overflow-x-auto rounded-xl border border-white/60 shadow-inner">
+              <table id="reproductionTable" class="w-full text-left">
+                <thead class="bg-gray-50/80 text-gray-600 text-xs uppercase tracking-wider">
                   <tr>
-                    <th class="p-4 font-semibold">Identificador</th>
-                    <th class="p-4 font-semibold">Etapa</th>
-                    <th class="p-4 font-semibold text-right">Acciones</th>
+                    <th class="p-3">Macho</th>
+                    <th class="p-3">Hembra</th>
+                    <th class="p-3">Fecha</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 text-sm">
-                  </tbody>
+                <tbody class="text-sm divide-y divide-gray-100"></tbody>
               </table>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="productionSection" class="hidden animate-fade-in">
-        <div class="bg-white p-6 rounded-xl shadow-sm">
-          <div class="flex justify-between items-center mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-800">Metricas de Produccion</h3>
-              <p class="text-sm text-gray-500">Nacimientos por mes</p>
+        <!-- Sanidad -->
+        <section id="healthSection" class="hidden animate-fade-in relative overflow-hidden">
+          <div class="absolute inset-0 bg-[url('img/cerdos.webp')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+          <span class="blob w-60 h-60 bg-emerald-300/35 -top-6 left-6"></span>
+          <div class="relative bg-white/90 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-xl shadow-green-900/10">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">Tratamientos Sanitarios</h3>
+                <p class="text-sm text-gray-500">Registra medicamentos aplicados.</p>
+              </div>
             </div>
-            <div class="flex gap-2">
-              <button id="exportPdf" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-100 transition">
-                <i class="fas fa-file-pdf mr-1"></i> PDF
+            <form id="healthForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <input id="healthPig" type="text" placeholder="Cerdo / Lote" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+              <input id="healthMed" type="text" placeholder="Medicamento" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+              <div class="flex gap-3">
+                <input id="healthDate" type="date" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+                <button type="submit" class="bg-gradient-to-r from-green-600 to-green-800 text-white px-4 py-2 rounded-lg font-semibold hover:brightness-110 shadow">
+                  Registrar
+                </button>
+              </div>
+            </form>
+            <div class="overflow-x-auto rounded-xl border border-white/60 shadow-inner">
+              <table id="healthTable" class="w-full text-left">
+                <thead class="bg-gray-50/80 text-gray-600 text-xs uppercase tracking-wider">
+                  <tr>
+                    <th class="p-3">Cerdo</th>
+                    <th class="p-3">Medicamento</th>
+                    <th class="p-3">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-gray-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Nutricion -->
+        <section id="nutritionSection" class="hidden animate-fade-in relative overflow-hidden">
+          <div class="absolute inset-0 bg-[url('img/cerdos.webp')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+          <span class="blob w-60 h-60 bg-green-200/40 -top-10 right-12"></span>
+          <div class="relative bg-white/90 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-xl shadow-green-900/10">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-gray-800">Inventario de Alimento</h3>
+                <p class="text-sm text-gray-500">Control de tipo y cantidad en kg.</p>
+              </div>
+            </div>
+            <form id="nutritionForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <input id="feedType" type="text" placeholder="Tipo de alimento" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+              <input id="feedQty" type="number" placeholder="Cantidad (kg)" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-4 focus:ring-green-500/30">
+              <button type="submit" class="bg-gradient-to-r from-green-600 to-green-800 text-white px-4 py-2 rounded-lg font-semibold hover:brightness-110 shadow">
+                Agregar
               </button>
-              <button id="exportXls" class="bg-green-50 text-green-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-green-100 transition">
-                <i class="fas fa-file-excel mr-1"></i> Excel
-              </button>
+            </form>
+            <div class="overflow-x-auto rounded-xl border border-white/60 shadow-inner">
+              <table id="nutritionTable" class="w-full text-left">
+                <thead class="bg-gray-50/80 text-gray-600 text-xs uppercase tracking-wider">
+                  <tr>
+                    <th class="p-3">Tipo</th>
+                    <th class="p-3">Cantidad</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-gray-100"></tbody>
+              </table>
             </div>
           </div>
-          <div class="h-96 w-full bg-gray-50 rounded-lg p-4 flex items-center justify-center">
-             <canvas id="productionChart"></canvas>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="reproductionSection" class="hidden animate-fade-in">
-        <div class="bg-white p-6 rounded-xl shadow-sm">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-800">Registro de Montas</h3>
-              <p class="text-sm text-gray-500">Control rapido de macho, hembra y fecha.</p>
-            </div>
+        <!-- Perfil -->
+        <section id="profileSection" class="hidden animate-fade-in relative overflow-hidden">
+          <div class="absolute inset-0 bg-[url('img/cerdos.webp')] bg-cover bg-center opacity-10 pointer-events-none"></div>
+          <span class="blob w-60 h-60 bg-emerald-200/40 -top-8 left-8"></span>
+          <div class="relative bg-white/90 backdrop-blur-md border border-white/60 p-6 rounded-2xl shadow-xl shadow-green-900/10 max-w-4xl">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <i class="fas fa-user-circle text-green-600"></i> Perfil del usuario
+            </h3>
+            <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm font-medium text-gray-600">Nombre completo</label>
+                <input id="profileFullName" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-4 focus:ring-green-500/30">
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Usuario</label>
+                <input id="profileUsername" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-4 focus:ring-green-500/30">
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Telefono</label>
+                <input id="profilePhone" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-4 focus:ring-green-500/30">
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Rol</label>
+                <select id="profileRole" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-4 focus:ring-green-500/30">
+                  <option value="Administrador">Administrador</option>
+                  <option value="Veterinario">Veterinario</option>
+                  <option value="Operario">Operario</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Finca</label>
+                <input id="profileFarm" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-4 focus:ring-green-500/30">
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-600">Ubicacion</label>
+                <input id="profileLocation" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-4 focus:ring-green-500/30">
+              </div>
+              <div class="md:col-span-2 flex justify-end">
+                <button type="submit" class="bg-gradient-to-r from-green-600 to-green-800 text-white px-6 py-3 rounded-lg font-semibold hover:brightness-110 shadow-lg">
+                  Guardar cambios
+                </button>
+              </div>
+            </form>
           </div>
-          <form id="reproductionForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <input id="repMale" type="text" placeholder="Macho" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-            <input id="repFemale" type="text" placeholder="Hembra" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-            <div class="flex gap-3">
-              <input id="repDate" type="date" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-              <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-800">Guardar</button>
-            </div>
-          </form>
-          <div class="overflow-x-auto rounded-lg border border-gray-100">
-            <table id="reproductionTable" class="w-full text-left">
-              <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
-                <tr>
-                  <th class="p-3">Macho</th>
-                  <th class="p-3">Hembra</th>
-                  <th class="p-3">Fecha</th>
-                </tr>
-              </thead>
-              <tbody class="text-sm divide-y divide-gray-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section id="healthSection" class="hidden animate-fade-in">
-        <div class="bg-white p-6 rounded-xl shadow-sm">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-800">Tratamientos Sanitarios</h3>
-              <p class="text-sm text-gray-500">Registra medicamentos aplicados.</p>
-            </div>
-          </div>
-          <form id="healthForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <input id="healthPig" type="text" placeholder="Cerdo / Lote" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-            <input id="healthMed" type="text" placeholder="Medicamento" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-            <div class="flex gap-3">
-              <input id="healthDate" type="date" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-              <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-800">Registrar</button>
-            </div>
-          </form>
-          <div class="overflow-x-auto rounded-lg border border-gray-100">
-            <table id="healthTable" class="w-full text-left">
-              <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
-                <tr>
-                  <th class="p-3">Cerdo</th>
-                  <th class="p-3">Medicamento</th>
-                  <th class="p-3">Fecha</th>
-                </tr>
-              </thead>
-              <tbody class="text-sm divide-y divide-gray-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section id="nutritionSection" class="hidden animate-fade-in">
-        <div class="bg-white p-6 rounded-xl shadow-sm">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div>
-              <h3 class="text-lg font-bold text-gray-800">Inventario de Alimento</h3>
-              <p class="text-sm text-gray-500">Control de tipo y cantidad en kg.</p>
-            </div>
-          </div>
-          <form id="nutritionForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <input id="feedType" type="text" placeholder="Tipo de alimento" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-            <input id="feedQty" type="number" placeholder="Cantidad (kg)" class="border border-gray-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500">
-            <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-800">Agregar</button>
-          </form>
-          <div class="overflow-x-auto rounded-lg border border-gray-100">
-            <table id="nutritionTable" class="w-full text-left">
-              <thead class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
-                <tr>
-                  <th class="p-3">Tipo</th>
-                  <th class="p-3">Cantidad</th>
-                </tr>
-              </thead>
-              <tbody class="text-sm divide-y divide-gray-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section id="profileSection" class="hidden animate-fade-in">
-        <div class="bg-white p-6 rounded-xl shadow-sm max-w-3xl">
-          <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fas fa-user-circle text-green-600"></i> Perfil del usuario
-          </h3>
-          <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="text-sm font-medium text-gray-600">Nombre completo</label>
-              <input id="profileFullName" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-green-500">
-            </div>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Usuario</label>
-              <input id="profileUsername" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-green-500">
-            </div>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Telefono</label>
-              <input id="profilePhone" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-green-500">
-            </div>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Rol</label>
-              <select id="profileRole" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-green-500">
-                <option value="Administrador">Administrador</option>
-                <option value="Veterinario">Veterinario</option>
-                <option value="Operario">Operario</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Finca</label>
-              <input id="profileFarm" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-green-500">
-            </div>
-            <div>
-              <label class="text-sm font-medium text-gray-600">Ubicacion</label>
-              <input id="profileLocation" type="text" class="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-green-500">
-            </div>
-            <div class="md:col-span-2 flex justify-end">
-              <button type="submit" class="bg-green-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-800 shadow">
-                Guardar cambios
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
-
-    </main>
+        </section>
+      </main>
+    </div>
   </div>
 
   <script type="module" src="js/dashboard.js"></script>

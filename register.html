@@ -14,14 +14,23 @@
         body { font-family: 'Inter', sans-serif; }
         .fade-in { animation: fadeIn 0.8s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .blob { position:absolute; border-radius:9999px; filter: blur(40px); opacity:0.45; animation: blob 18s ease-in-out infinite; }
+        .blob:nth-child(2){ animation-delay:4s; }
+        @keyframes blob {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(20px,-30px) scale(1.05); }
+            66% { transform: translate(-10px,25px) scale(0.95); }
+        }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden bg-white">
 
     <div class="hidden md:flex md:w-1/2 lg:w-3/5 bg-green-800 relative items-center justify-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1604917097032-0ac1c9bb0633?auto=format&fit=crop&w=1920&q=80" 
+        <img src="img/cerdos.webp" 
              class="absolute inset-0 w-full h-full object-cover opacity-50" 
              alt="Cerdos en la granja">
+        <span class="blob w-72 h-72 bg-green-400/45 -top-14 -left-10"></span>
+        <span class="blob w-80 h-80 bg-emerald-600/45 -bottom-20 -right-16"></span>
         
         <div class="relative z-10 text-center px-10 fade-in">
             <h2 class="text-4xl lg:text-5xl font-extrabold text-white mb-6 tracking-tight drop-shadow-lg">
@@ -37,10 +46,10 @@
 
     <div class="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center items-center p-8 lg:p-12 relative overflow-y-auto">
         
-        <div class="w-full max-w-md fade-in mt-10 md:mt-0">
+        <div class="w-full max-w-md fade-in">
             
-            <div class="text-center mb-8">
-                <img src="img/logo.jpeg" alt="Logo Agrofarm" class="mx-auto h-16 w-auto mb-3 rounded-lg shadow-sm">
+            <div class="text-center mb-10">
+                <img src="img/logo2.png" alt="Logo Agrofarm" class="h-40 w-auto object-contain mx-auto mb-6 drop-shadow-xl">
                 <h1 class="text-3xl font-bold text-gray-900">Crear Cuenta</h1>
                 <p class="text-gray-500 mt-1">Completa tus datos para empezar</p>
             </div>

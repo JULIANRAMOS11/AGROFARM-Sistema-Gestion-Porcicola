@@ -1,4 +1,4 @@
-SHOW TABLES;
-
 SELECT * FROM cerdos;
+
+cerdos
 
